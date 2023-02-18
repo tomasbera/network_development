@@ -9,7 +9,7 @@
     </div>
     <div class="result-container">
       <h2 class="result-heading">Output</h2>
-      <div v-if="loading" class="loading-spinner"></div>
+      <div v-if="showSpinner" class="spinner"></div>
       <div v-if="error" class="error">{{ error }}</div>
       <div v-if="result" class="result">{{ result }}</div>
     </div>
@@ -25,22 +25,23 @@ export default {
     return {
       code: "",
       result: "",
-      loading: false,
+      showSpinner: false,
       error: null,
     };
   },
   methods: {
-    compile: function () {
+    compile() {
       if (!this.code.trim()) {
         return;
       }
-      this.loading = true;
       this.error = null;
+      this.showSpinner = true;
       axios
           .post("http://localhost:1234/compiler", {
             code: this.code,
           })
           .then((resp) => {
+            console.log(resp);
             this.result = resp.data.result;
           })
           .catch((err) => {
@@ -50,10 +51,11 @@ export default {
           })
           .finally(() => {
             this.loading = false;
+            this.showSpinner = false;
           });
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -115,8 +117,25 @@ export default {
   margin-bottom: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #fff;
+  color: black;
   text-align: center;
   vertical-align: center;
 }
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #333;
+  animation: spin 1s linear infinite;
+
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 </style>
