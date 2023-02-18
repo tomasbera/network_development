@@ -1,128 +1,122 @@
 <template>
-  <div class="grid">
-    <div class="input-container">
-      <label for="inputBox" class="label">Code Input</label>
-      <textarea id="inputBox" v-model="code" class="textarea"></textarea>
+  <div class="container">
+    <div class="form-container">
+      <h2 class="form-heading">Code Input</h2>
+      <div class="form-group">
+        <textarea id="inputBox" v-model="code" class="form-control"></textarea>
+      </div>
+      <button id="compButton" @click="compile" :disabled="loading" class="btn btn-primary">Compile and run</button>
     </div>
-    <div class="output-container">
-      <label for="outputBox" class="label">Output</label>
-      <textarea id="outputBox" :value="resultText" class="textarea" readonly></textarea>
-      <div v-if="loading" class="loading">Please wait...</div>
+    <div class="result-container">
+      <h2 class="result-heading">Output</h2>
+      <div v-if="loading" class="loading-spinner"></div>
       <div v-if="error" class="error">{{ error }}</div>
+      <div v-if="result" class="result">{{ result }}</div>
     </div>
-    <button id="compButton" @click="compile" :disabled="loading" class="button">Compile and run</button>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: 'cpp_compiler',
-  data(){
+  name: "cpp_compiler",
+  data() {
     return {
       code: "",
+      result: "",
       loading: false,
       error: null,
-    }
+    };
   },
-  computed: {
-    resultText() {
-      if (this.loading) {
-        return "Please wait..."
-      }
-      if (this.error) {
-        return this.error
-      }
-      return this.result
-    }
-  },
-  methods:{
-    compile: function (){
+  methods: {
+    compile: function () {
       if (!this.code.trim()) {
-        return
+        return;
       }
-      this.loading = true
-      this.error = null
-      axios.post("http://localhost:1234/compiler",{
-        code: this.code
-      })
-          .then(resp => {
-            console.log(resp)
-            this.result = resp.data.result
+      this.loading = true;
+      this.error = null;
+      axios
+          .post("http://localhost:1234/compiler", {
+            code: this.code,
           })
-          .catch(err => {
-            console.log("Something went wrong")
-            console.log(err)
-            this.error = "Something went wrong"
+          .then((resp) => {
+            this.result = resp.data.result;
+          })
+          .catch((err) => {
+            console.log("Something went wrong");
+            console.log(err);
+            this.error = "Something went wrong";
           })
           .finally(() => {
-            this.loading = false
-          })
-    }
-  }
-}
+            this.loading = false;
+          });
+    },
+  },
+};
 </script>
+
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 2rem;
-}
-
-.input-container, .output-container {
+.container {
   display: flex;
-  flex-direction: column;
-}
-
-.label {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.textarea {
-  height: 400px;
-  padding: 1rem;
-  font-size: 1.2rem;
-  line-height: 1.5;
-  border: 2px solid #333;
-  border-radius: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
   background-color: #f5f5f5;
 }
 
-.loading {
-  margin-top: 0.5rem;
-  font-size: 1.2rem;
+.form-container,
+.result-container {
+  flex: 1 1 400px;
+  margin: 1rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.form-heading,
+.result-heading {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
   text-align: center;
 }
 
-.error {
-  margin-top: 0.5rem;
-  font-size: 1.2rem;
-  color: #e60000;
-  text-align: center;
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
-.button {
-  height: 100px;
-  padding: 1rem 2rem;
+.form-control {
+  display: block;
+  width: 100%;
+  height: 300px;
+  padding: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #4d90fe;
+  box-shadow: 0 0 0 0.2rem rgba(77, 144, 254, 0.25);
+}
+
+.btn {
+  display: inline-block;
+  margin-bottom: 0;
   font-size: 1.5rem;
   font-weight: bold;
   color: #fff;
-  background-color: #333;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.button:hover, .button:focus {
-  background-color: #666;
-}
-
-.button:active {
-  background-color: #000;
+  text-align: center;
+  vertical-align: center;
 }
 </style>
