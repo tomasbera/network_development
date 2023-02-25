@@ -5,7 +5,7 @@
       <div class="form-group">
         <textarea id="inputBox" v-model="code" class="form-control"></textarea>
       </div>
-      <button id="compButton" @click="compile" :disabled="loading" class="btn btn-primary">Compile and run</button>
+      <button id="compButton" @click="compile" :disabled="showSpinner" class="btn btn-primary">Compile and run</button>
     </div>
     <div class="result-container">
       <h2 class="result-heading">Output</h2>
@@ -36,8 +36,7 @@ export default {
       }
       this.error = null;
       this.showSpinner = true;
-      axios
-          .post("http://localhost:1234/compiler", {
+      axios.post("http://localhost:1234/compiler", {
             code: this.code,
           })
           .then((resp) => {

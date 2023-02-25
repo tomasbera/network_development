@@ -18,8 +18,8 @@ app.post('/compiler', async (request, response) => {
     try {
         await writeCode(code);
         await execCommand("docker build \"./cpp/\" -t cpp_compiler");
-        const output = await execCommand("docker run --rm cpp_compiler")
-            .then(execCommand("docker rmi cpp_compiler"));
+        const output = await execCommand("docker run --rm cpp_compiler");
+        await execCommand("docker rmi cpp_compiler");
         response.status(200).json({ result: output });
     } catch (error) {
         response.status(500).json({ error: error });
