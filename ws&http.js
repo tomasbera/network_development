@@ -71,11 +71,10 @@ class MyWebSocket {
 
 
     handshake(data) {
-        const d = data.toString().split("\n")
+        const d = data.toString().split("\r\n")
         for (let i = 0; i < d.length; i++){
             if (d[i].includes("Sec-WebSocket-Key:")){
                 this.clientKey = d[i].replace("Sec-WebSocket-Key: ", "")
-                this.clientKey = this.clientKey.replace("\r", "")
                 this.keys.push(this.clientKey);
                 break;
             }
@@ -98,16 +97,19 @@ class MyWebSocket {
     }
 
     decodePayload(data){
-        let bytes = data;
-        let payloadLength = bytes[1] & 127;
-        let maskStart = 2;
-        let dataStart = maskStart + 4;
+        const payloadLength = data[1] & 127;
+        let payloadStart = 2;
         let responseWord = "";
 
-        for (let i = dataStart; i < dataStart + payloadLength; i++) {
-            let byte = bytes[i] ^ bytes[maskStart + ((i - dataStart) % 4)]
-            responseWord += String.fromCharCode(byte)
+        let mask = data.slice(payloadStart, payloadStart + 4);
+        payloadStart += 4;
+
+        const payload = data.slice(payloadStart, payloadStart + payloadLength);
+        for (let i = 0; i < payloadLength; i++) {
+            payload[i] ^= mask[i % 4];
         }
+        responseWord = payload.toString("utf8");
+
         for (let i = 0; i < connections.length; i++) {
             connections[i].write(this.sendMessage(responseWord))
         }
