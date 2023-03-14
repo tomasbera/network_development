@@ -51,7 +51,6 @@ httpServer.listen(3000, () => {
 let connections = []
 const wsServer = net.createServer((connection) => {
     const mws = new MyWebSocket();
-    console.log('Client connected');
 
     connection.on('data', async (data) => {
         let mustHave = data.toString().includes("Sec-WebSocket-Key:")
@@ -111,7 +110,7 @@ class MyWebSocket {
             "Sec-WebSocket-Accept: "+ this.base64Key +"\r\n\r\n";
 
         connection.write(this.serverResponse);
-        connections.push(connection)
+        connections.push(connection);
 
     }
 
