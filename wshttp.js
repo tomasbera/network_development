@@ -8,18 +8,37 @@ const httpServer = net.createServer((connection) => {
             `<!DOCTYPE html>
                 <html>
                     <head>
-                        <meta charset="UTF-8" />
+                        <meta charset="UTF-8">
+                        <title>WebSocket Test</title>
                     </head>
-                        <body>
-                        WebSocket test page
-                            <script>
-                                let ws = new WebSocket('ws://localhost:3001');
-                                ws.onmessage = event => alert('Message from server: ' + event.data);
-                                ws.onopen = () => ws.send('hello');
-                            </script>
-                        </body>
-                    </html>`;
-
+                    <body>
+                        <h1>WebSocket Test</h1>
+                        <textarea id="output" rows="10" cols="50" disabled></textarea>
+                        <br>
+                        <textarea id="input" rows="3" cols="50"></textarea>
+                        <br>
+                        <button onclick="sendMessage()">Send Message</button>
+                        <script>
+                            const outputTextArea = document.getElementById('output');
+                            const inputTextArea = document.getElementById('input');
+                    
+                            const ws = new WebSocket('ws://localhost:3001');
+                    
+                            ws.onmessage = event => {
+                                outputTextArea.value += 'Message from server: ' + event.data + '\\n';
+                            };
+                    
+                            function sendMessage() {
+                                const message = inputTextArea.value.trim();
+                    
+                                if (message) {
+                                    ws.send(message);
+                                    inputTextArea.value = '';
+                                }
+                            }
+                        </script>
+                    </body>
+                  </html>`;
         connection.write('HTTP/1.1 200 OK\r\nContent-Length: ' + content.length + '\r\n\r\n' + content);
     });
 });
